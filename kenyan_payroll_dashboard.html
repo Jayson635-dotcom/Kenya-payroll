@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kenyan Payroll System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white !important; color: black !important; }
+            .payslip-container, .p9-container {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+        }
+        .sidebar { transition: all 0.3s ease; }
+        .sidebar.collapsed { width: 70px; }
+        .sidebar.collapsed .sidebar-text { display: none; }
+        .sidebar.collapsed .menu-item { justify-content: center; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Include previous content -->
+    <!-- Fix missing closing tag -->
+    <span class="text-green-500 font-medium">KSh 91,320</span>
+
+    <!-- Add section toggle script -->
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.classList.remove('hidden');
+                document.getElementById('pageTitle').textContent = sectionId.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+            }
+        }
+    </script>
+
+    <!-- Add chart script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('payrollChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: 'Payroll (KSh)',
+                        data: [1200000, 1250000, 1300000, 1275000, 1245000],
+                        backgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        });
+    </script>
+
+    <!-- Fix logout redirect -->
+    <script>
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.reload();
+        });
+    </script>
+
+    <!-- Login handling script -->
+    <script>
+        const DEFAULT_ADMIN = {
+            username: 'admin',
+            password: 'admin123',
+            role: 'admin',
+            fullName: 'System Administrator'
+        };
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === DEFAULT_ADMIN.username && password === DEFAULT_ADMIN.password) {
+                localStorage.setItem('currentUser', JSON.stringify(DEFAULT_ADMIN));
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                window.location.href = user.role === 'admin' ? 'dashboard.html' : 'my-payroll.html';
+            } else {
+                alert('Invalid username or password');
+            }
+        });
+    </script>
+
+    <!-- Include these only if scripts exist -->
+    <script src="js/userManagement.js"></script>
+    <script src="js/dataImport.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
